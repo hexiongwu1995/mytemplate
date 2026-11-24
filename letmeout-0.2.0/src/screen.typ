@@ -8,6 +8,7 @@
 #import "line.typ": html-line
 #import "align.typ": html-align
 #import "flow.typ": flow-css, flow-attrs, flow-style, fractional-body
+#import "toc-css.typ": toc-css
 
 // The colors of Typst's default raw theme (typst-library's `RAW_THEME`).
 #let raw-palette = ("#16718d", "#198810", "#1d6c76", "#301414", "#4b69c6", "#6b6b6f", "#74747c", "#8b41b1", "#b60157", "#d73948")
@@ -75,6 +76,7 @@
   css.push("p .letmeout-box { margin-block: calc(var(--letmeout-leading, 0pt) / 2); }")
   css.push(image-css)
   css.push(scroll-css)
+  if options.toc != none and options.toc != false { css.push(toc-css) }
   css.push(options.css)
   html.elem("style", css.filter(rule => rule != "").join("\n"))
 }

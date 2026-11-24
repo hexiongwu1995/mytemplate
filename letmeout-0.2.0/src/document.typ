@@ -9,6 +9,7 @@
 #import "page.typ": kind, visible-count, merge-args, settings, section, html-pagebreak
 #import "screen.typ": screen, screen-style
 #import "scroll.typ": group-wide
+#import "toc.typ": toc-markup, toc-enabled, toc-title
 
 #let probe-label = <letmeout-probe>
 // Start and end of a `context` item, and page settings found inside one.
@@ -252,6 +253,7 @@
     let found = (:)
     for m in query(probe-label) { found.insert(str(m.value.id), m.value) }
     let items = parts(body, root, found, opaque-states(), (style: 0, ctx: 0)).items
+    if toc-enabled(options.toc) { toc-markup(title: toc-title(options.toc)) }
     if items.len() == 0 { items = ((kind: "flow", body: [], info: root),) }
     for item in items {
       if item.kind == "flow" { block-of(item) } else { item.body }
@@ -299,15 +301,20 @@
 ///   rotation to native framed SVG in dark mode; `none` preserves frame colors.
 ///   Scoped themes can override the inherited policy.
 /// - css (string): Default `""`. CSS appended to the document stylesheet.
+/// - toc (bool, dictionary): Default `true`. In HTML, adds a sidebar table of
+///   contents built from the document's headings. It starts open on wide
+///   screens and closed on narrow ones; mouse users toggle it with a button,
+///   while touch screens swipe it in and out. Pass `false` to omit it, or a
+///   dictionary such as `(title: "目录")` to change the heading.
 ///
 /// See docs/html-semantics.md for every native page/pagebreak field and the
 /// individual screen adapters. Page support requires this show rule before
 /// document content. Optional wrappers in `letmeout-extras` also work without it.
 ///
 /// -> content
-#let letmeout(body, color-scheme: "light dark", dark-colors: (), dark-frames: "invert", css: "") = context {
+#let letmeout(body, color-scheme: "light dark", dark-colors: (), dark-frames: "invert", css: "", toc: true) = context {
   assert(dark-frames in (none, "invert"), message: "letmeout: dark-frames is \"invert\" or none")
-  let options = (color-scheme: color-scheme, dark-colors: dark-colors, dark-frames: dark-frames, css: css)
+  let options = (color-scheme: color-scheme, dark-colors: dark-colors, dark-frames: dark-frames, css: css, toc: toc)
   if target() != "html" { return body }
   show std.pagebreak: it => context {
     if target() == "html" { html-pagebreak(it) } else { it }

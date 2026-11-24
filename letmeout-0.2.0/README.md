@@ -45,11 +45,16 @@ typst compile report.typ report.pdf
   and colors carry over. The page follows the reader's light or dark mode.
 - **Nothing changes in print.** PDF, PNG, and SVG use Typst's own elements.
   The test suite checks that they are identical byte for byte.
+- **A table of contents that fits the screen.** Every HTML page gets a sidebar
+  outline built from its headings. It starts open on wide screens and closed on
+  phones, toggles with a button for mouse users, and follows the finger when
+  swiped on a touch screen. Turn it off with `#show: letmeout.with(toc: false)`.
 - **Same Typst you know.** Keep calling `grid`, `page.with(...)`, and
   `pagebreak()`. Where HTML should differ from print, say so with
   `letmeout-extras.html-only(...)` and `letmeout-extras.paged-only(...)`.
-- **No runtime.** No JavaScript, no external stylesheet, no build step beyond
-  `typst compile`.
+- **No runtime.** No external stylesheet and no build step beyond
+  `typst compile`. The sidebar is the only script: a small inline script for its
+  button and swipe gestures, which `toc: false` removes.
 
 ## Getting started
 
@@ -70,6 +75,13 @@ Requires Typst 0.15 or newer.
 ```
 
 The PDF keeps its A4 page; the web page fills the screen with a small margin.
+
+The HTML sidebar reads the headings automatically, so no extra markup is
+needed. On a wide screen it is open and the page makes room for it; on a narrow
+screen it slides over the page and starts closed. Mouse and trackpad users get
+a button, touch screens swipe it open and shut with a live drag. Set
+`#show: letmeout.with(toc: (title: "目录"))` to rename it, or `toc: false` to
+leave it out.
 
 Run the examples from a repository checkout:
 

@@ -17,7 +17,7 @@ import {
   waitForState,
 } from './helpers.mjs';
 
-const packageDir = path.join(repoRoot, 'mytemplate-0.3.0');
+const packageDir = repoRoot;
 const linksSelector = '.mytemplate-toc-link';
 
 let browser;
@@ -76,13 +76,13 @@ test('package metadata and every source reference use the new name and version',
   const manifest = readFileSync(path.join(packageDir, 'typst.toml'), 'utf8');
   assert.match(manifest, /^name = "mytemplate"$/m);
   assert.match(manifest, /^version = "0\.3\.0"$/m);
-  assert.equal(path.basename(packageDir), 'mytemplate-0.3.0');
 
   const oldName = ['let', 'meout'].join('');
   const offenders = [];
+  const skipped = new Set(['.git', 'node_modules', 'test']);
   const walk = (dir) => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      if (entry.name === '.git') continue;
+      if (skipped.has(entry.name)) continue;
       const full = path.join(dir, entry.name);
       if (entry.isDirectory()) {
         walk(full);

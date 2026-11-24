@@ -1,4 +1,4 @@
-#import "../../mytemplate-0.3.0/lib.typ": *
+#import "../../lib.typ": *
 
 #show: mytemplate
 #set heading(numbering: "1.")

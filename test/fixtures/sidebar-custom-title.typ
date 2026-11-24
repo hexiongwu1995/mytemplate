@@ -1,4 +1,4 @@
-#import "../../mytemplate-0.1.0/lib.typ": *
+#import "../../mytemplate-0.3.0/lib.typ": *
 
 #show: mytemplate.with(toc: (title: "目录"))
 #set heading(numbering: "1.")

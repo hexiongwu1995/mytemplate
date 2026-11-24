@@ -1,6 +1,6 @@
 # Sidebar tests
 
-Browser tests for the HTML table-of-contents sidebar in `mytemplate-0.1.0`.
+Browser tests for the HTML table-of-contents sidebar in `mytemplate-0.3.0`.
 They compile small Typst fixtures, serve the generated HTML, and drive Chromium
 with Playwright.
 
@@ -33,7 +33,7 @@ so the rendered states can be inspected without running the suite.
 
 `sidebar.test.mjs` runs 14 checks:
 
-- **Renaming and version.** `typst.toml` is `mytemplate` 0.1.0, the package
+- **Renaming and version.** `typst.toml` is `mytemplate` 0.3.0, the package
   directory matches, and no source file still mentions the old package name.
 - **Desktop, wide screen.** The sidebar is open by default, reserves space in the
   page, lists all heading levels in order, links to real heading ids, and exposes

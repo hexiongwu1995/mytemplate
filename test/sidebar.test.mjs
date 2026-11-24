@@ -17,7 +17,7 @@ import {
   waitForState,
 } from './helpers.mjs';
 
-const packageDir = path.join(repoRoot, 'mytemplate-0.1.0');
+const packageDir = path.join(repoRoot, 'mytemplate-0.3.0');
 const linksSelector = '.mytemplate-toc-link';
 
 let browser;
@@ -75,8 +75,8 @@ async function waitForPadding(page, expected, timeout = 3000) {
 test('package metadata and every source reference use the new name and version', () => {
   const manifest = readFileSync(path.join(packageDir, 'typst.toml'), 'utf8');
   assert.match(manifest, /^name = "mytemplate"$/m);
-  assert.match(manifest, /^version = "0\.1\.0"$/m);
-  assert.equal(path.basename(packageDir), 'mytemplate-0.1.0');
+  assert.match(manifest, /^version = "0\.3\.0"$/m);
+  assert.equal(path.basename(packageDir), 'mytemplate-0.3.0');
 
   const oldName = ['let', 'meout'].join('');
   const offenders = [];

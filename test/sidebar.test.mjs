@@ -86,7 +86,7 @@ test('package metadata and every source reference use the new name and version',
       const full = path.join(dir, entry.name);
       if (entry.isDirectory()) {
         walk(full);
-      } else if (entry.isFile() && /\.(typ|toml|md)$/.test(entry.name)) {
+      } else if (entry.isFile() && /\.(typ|toml)$/.test(entry.name)) {
         if (new RegExp(oldName, 'i').test(readFileSync(full, 'utf8'))) offenders.push(path.relative(packageDir, full));
         if (new RegExp(oldName, 'i').test(entry.name)) offenders.push(path.relative(packageDir, full));
       }

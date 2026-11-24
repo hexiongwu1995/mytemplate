@@ -101,6 +101,11 @@ typst compile --root . --features html docs/page.typ docs/page.html
   `mytemplate-extras.align`, and `mytemplate-extras.page` note what each parameter does in HTML.
 - [Contributing](CONTRIBUTING.md): tests, generated docs, and releases.
 
+## Origin
+
+`mytemplate` originates from the `letmeout` package:
+<https://typst.app/universe/package/letmeout>.
+
 ## License
 
 MIT

@@ -104,10 +104,12 @@ test('desktop: sidebar is open by default with a complete outline', async () => 
     assert.ok(state.progress !== null && Math.abs(state.progress - 1) < 0.001);
     assert.equal(state.inert, false);
     assert.equal(state.translateX, 0);
-    assert.ok(state.navWidth >= 250, `sidebar width ${state.navWidth}`);
+    assert.ok(state.navWidth >= 320, `sidebar width ${state.navWidth}`);
     assert.ok(state.bodyPadding >= state.navWidth, `body padding ${state.bodyPadding}`);
     assert.equal(state.openerDisplay, 'none');
     assert.equal(state.closeDisplay, 'grid');
+    assert.equal(state.resizeDisplay, 'block');
+    assert.equal(state.resizeCursor, 'col-resize');
     assert.equal(state.aria.label, 'Contents');
 
     const items = await outline(page);
@@ -163,7 +165,7 @@ test('desktop: close button collapses, opener restores, and Escape closes', asyn
 
     await page.click('.mytemplate-toc-open');
     await waitForState(page, 'open');
-    await waitForPadding(page, state.navWidth);
+    await waitForPadding(page, state.navWidth + 1);
     await page.waitForTimeout(400);
     state = await pageState(page);
     assert.equal(state.inert, false);
@@ -239,6 +241,7 @@ test('desktop: print styles hide the sidebar and remove page padding', async () 
     assert.equal(state.openerDisplay, 'none');
     assert.equal(state.backdropDisplay, 'none');
     assert.equal(state.gripDisplay, 'none');
+    assert.equal(state.resizeDisplay, 'none');
     assert.equal(state.bodyPadding, 0);
   } finally {
     await context.close();
@@ -255,7 +258,56 @@ test('desktop: resizing across 64rem follows the large/small default', async () 
 
     await page.setViewportSize({ width: 1024, height: 900 });
     await waitForState(page, 'open');
-    await waitForPadding(page, 273);
+    const width = await page.evaluate(
+      () => document.querySelector('.mytemplate-toc').getBoundingClientRect().width,
+    );
+    await waitForPadding(page, Math.round(width) + 1);
+  } finally {
+    await context.close();
+  }
+});
+
+test('desktop: resize handle drags the sidebar width within its limits', async () => {
+  const { context, page } = await openPage('sidebar.html');
+  const dragHandle = async (dx) => {
+    const box = await page.locator('.mytemplate-toc-resize').boundingBox();
+    const x = box.x + box.width / 2;
+    const y = box.y + box.height / 2;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + dx, y, { steps: 8 });
+    await page.mouse.up();
+  };
+  try {
+    const initial = await pageState(page);
+    assert.ok(initial.navWidth >= 320, `default width ${initial.navWidth}`);
+    assert.equal(initial.resizeDisplay, 'block');
+
+    await dragHandle(90);
+    await waitForPadding(page, initial.navWidth + 91);
+    let state = await pageState(page);
+    assert.ok(state.navWidth >= initial.navWidth + 85, `width after drag ${state.navWidth}`);
+    assert.ok(state.bodyPadding >= state.navWidth, `padding after drag ${state.bodyPadding}`);
+    assert.equal(state.state, 'open');
+    assert.equal(state.translateX, 0);
+
+    // Dragging far past the maximum stops at 32rem.
+    await dragHandle(500);
+    state = await pageState(page);
+    assert.equal(state.navWidth, 512);
+    assert.equal(state.bodyPadding, 513);
+
+    // Dragging far past the minimum stops at 14rem.
+    await dragHandle(-500);
+    state = await pageState(page);
+    assert.equal(state.navWidth, 224);
+    assert.equal(state.bodyPadding, 225);
+
+    // The handle belongs to the open panel only.
+    await page.click('.mytemplate-toc-close');
+    await waitForState(page, 'closed');
+    await page.waitForTimeout(400);
+    assert.equal((await pageState(page)).resizeDisplay, 'none');
   } finally {
     await context.close();
   }
@@ -266,6 +318,7 @@ test('toc: false removes the sidebar, its styles, and its script', async () => {
   try {
     const result = await page.evaluate(() => ({
       nav: Boolean(document.querySelector('.mytemplate-toc')),
+      resize: Boolean(document.querySelector('.mytemplate-toc-resize')),
       scripts: document.querySelectorAll('script').length,
       variable: getComputedStyle(document.documentElement)
         .getPropertyValue('--mytemplate-toc-progress')
@@ -273,7 +326,14 @@ test('toc: false removes the sidebar, its styles, and its script', async () => {
       padding: parseFloat(getComputedStyle(document.body).paddingInlineStart) || 0,
       headings: document.querySelectorAll('h1, h2, h3').length,
     }));
-    assert.deepEqual(result, { nav: false, scripts: 0, variable: '', padding: 0, headings: 3 });
+    assert.deepEqual(result, {
+      nav: false,
+      resize: false,
+      scripts: 0,
+      variable: '',
+      padding: 0,
+      headings: 3,
+    });
   } finally {
     await context.close();
   }
@@ -340,13 +400,14 @@ test('touch tablet: wide screen opens by default and swipes closed', async () =>
   });
   try {
     await waitForState(page, 'open');
-    await waitForPadding(page, 273);
+    await waitForPadding(page, (await pageState(page)).navWidth + 1);
     await page.waitForTimeout(400);
     let state = await pageState(page);
     assert.equal(state.state, 'open');
     assert.equal(state.openerDisplay, 'none');
     assert.equal(state.closeDisplay, 'none');
     assert.equal(state.gripDisplay, 'block');
+    assert.equal(state.resizeDisplay, 'none');
     assert.equal(await page.evaluate(() => matchMedia('(pointer: coarse)').matches), true);
     await screenshot(page, 'tablet-open');
 
@@ -376,6 +437,7 @@ test('mobile: starts closed with touch controls and an off-screen panel', async 
     assert.equal(state.openerDisplay, 'none');
     assert.equal(state.closeDisplay, 'none');
     assert.equal(state.gripDisplay, 'block');
+    assert.equal(state.resizeDisplay, 'none');
     assert.equal(state.backdropDisplay, 'block');
     assert.equal(state.backdropPointer, 'none');
     assert.ok(state.navRight <= 0, `closed panel right edge ${state.navRight}`);

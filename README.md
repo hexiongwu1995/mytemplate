@@ -47,14 +47,15 @@ typst compile report.typ report.pdf
   The test suite checks that they are identical byte for byte.
 - **A table of contents that fits the screen.** Every HTML page gets a sidebar
   outline built from its headings. It starts open on wide screens and closed on
-  phones, toggles with a button for mouse users, and follows the finger when
-  swiped on a touch screen. Turn it off with `#show: mytemplate.with(toc: false)`.
+  phones, toggles with a button for mouse users, follows the finger when swiped
+  on a touch screen, and can be widened or narrowed by dragging the handle on
+  its edge. Turn it off with `#show: mytemplate.with(toc: false)`.
 - **Same Typst you know.** Keep calling `grid`, `page.with(...)`, and
   `pagebreak()`. Where HTML should differ from print, say so with
   `mytemplate-extras.html-only(...)` and `mytemplate-extras.paged-only(...)`.
 - **No runtime.** No external stylesheet and no build step beyond
   `typst compile`. The sidebar is the only script: a small inline script for its
-  button and swipe gestures, which `toc: false` removes.
+  button, resize handle, and swipe gestures, which `toc: false` removes.
 
 ## Getting started
 

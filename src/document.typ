@@ -303,9 +303,10 @@
 /// - css (string): Default `""`. CSS appended to the document stylesheet.
 /// - toc (bool, dictionary): Default `true`. In HTML, adds a sidebar table of
 ///   contents built from the document's headings. It starts open on wide
-///   screens and closed on narrow ones; mouse users toggle it with a button,
-///   while touch screens swipe it in and out. Pass `false` to omit it, or a
-///   dictionary such as `(title: "目录")` to change the heading.
+///   screens and closed on narrow ones; mouse users toggle it with a button and
+///   resize it by dragging the handle on its edge, while touch screens swipe it
+///   in and out. Pass `false` to omit it, or a dictionary such as
+///   `(title: "目录")` to change the heading.
 ///
 /// See docs/html-semantics.md for every native page/pagebreak field and the
 /// individual screen adapters. Page support requires this show rule before

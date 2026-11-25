@@ -4,7 +4,9 @@
 // narrow ones closed; the button only shows for fine pointers and swiping is
 // only wired up for touch, as described by `pointer` media features.
 
-#let toc-width = "17rem"
+#let toc-width = "20rem"
+#let toc-min-width = "14rem"
+#let toc-max-width = "32rem"
 #let toc-breakpoint = "64rem"
 
 #let toc-css = (
@@ -14,6 +16,8 @@
   + ":root { --mytemplate-toc-progress: 1; }"
   + "@media (max-width: calc(" + toc-breakpoint + " - 0.02px)) { :root { --mytemplate-toc-progress: 0; } }"
   + ":root { --mytemplate-toc-width: " + toc-width + ";"
+  + " --mytemplate-toc-min-width: " + toc-min-width + ";"
+  + " --mytemplate-toc-max-width: " + toc-max-width + ";"
   + " --mytemplate-toc-ease: cubic-bezier(0.22, 0.61, 0.36, 1);"
   + " --mytemplate-toc-line: light-dark(rgb(0 0 0 / 0.1), rgb(255 255 255 / 0.14));"
   + " --mytemplate-toc-surface: light-dark(rgb(252 252 250), rgb(24 24 27));"
@@ -39,6 +43,20 @@
   + " transition: transform 0.32s var(--mytemplate-toc-ease), visibility 0s linear 0s; }"
   + " .mytemplate-toc[dir=rtl], [dir=rtl] .mytemplate-toc {"
   + " transform: translate3d(calc((1 - var(--mytemplate-toc-progress)) * (100% + 1px)), 0, 0); }"
+  // A handle on the trailing edge resizes the panel by dragging. It is shown
+  // only on wide screens with a precise pointer, and only while the panel is open.
+  + " .mytemplate-toc-resize { display: none; position: absolute; inset-block: 0; inset-inline-end: 0;"
+  + " width: 0.625rem; z-index: 2; cursor: col-resize; touch-action: none; }"
+  + " .mytemplate-toc-resize-grip { position: absolute; inset-block-start: 50%; inset-inline-end: 0.1875rem;"
+  + " width: 0.1875rem; height: 2.5rem; transform: translateY(-50%); border-radius: 999px;"
+  + " background: var(--mytemplate-toc-muted); opacity: 0.35;"
+  + " transition: opacity 0.15s ease, background-color 0.15s ease; }"
+  + " .mytemplate-toc-resize:hover .mytemplate-toc-resize-grip { opacity: 0.75; }"
+  + " .mytemplate-toc-resizing .mytemplate-toc-resize-grip { opacity: 0.9;"
+  + " background: var(--mytemplate-toc-accent); }"
+  + " @media (min-width: " + toc-breakpoint + ") and (pointer: fine) {"
+  + " .mytemplate-toc-resize { display: block; } }"
+  + " .mytemplate-toc[data-state=closed] .mytemplate-toc-resize { display: none; }"
   + " .mytemplate-toc-head { display: flex; align-items: center; gap: 0.5rem;"
   + " padding: 0.75rem 0.75rem 0.5rem 1rem; }"
   + " .mytemplate-toc-title { flex: 1 1 auto; min-width: 0; margin: 0; font-size: 0.75rem;"
@@ -101,6 +119,8 @@
   + " .mytemplate-toc-dragging, .mytemplate-toc-dragging body,"
   + " .mytemplate-toc-dragging .mytemplate-toc, .mytemplate-toc-dragging .mytemplate-toc-backdrop {"
   + " transition: none !important; }"
+  // While the handle is dragged the page padding follows the width without easing.
+  + " .mytemplate-toc-resizing, .mytemplate-toc-resizing body { transition: none !important; }"
   + " .mytemplate-toc-dragging .mytemplate-toc { visibility: visible; }"
   + " .mytemplate-toc-dragging .mytemplate-toc-opener,"
   + " .mytemplate-toc-dragging .mytemplate-toc-close { display: none !important; }"
@@ -108,6 +128,6 @@
   + " .mytemplate-toc, .mytemplate-toc-backdrop, body { transition-duration: 0.001s !important; }"
   + " html { scroll-behavior: auto !important; } }"
   + " @media print { .mytemplate-toc, .mytemplate-toc-opener, .mytemplate-toc-backdrop,"
-  + " .mytemplate-toc-grip { display: none !important; }"
+  + " .mytemplate-toc-grip, .mytemplate-toc-resize { display: none !important; }"
   + " body { padding-inline-start: 0 !important; } }"
 )

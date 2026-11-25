@@ -31,7 +31,7 @@ so the rendered states can be inspected without running the suite.
 
 ## What is covered
 
-`sidebar.test.mjs` runs 14 checks:
+`sidebar.test.mjs` runs 15 checks:
 
 - **Renaming and version.** The root `typst.toml` is `mytemplate` 0.3.0 and no
   package source file still mentions the old package name.
@@ -40,6 +40,9 @@ so the rendered states can be inspected without running the suite.
   accessible labels.
 - **Desktop, interactions.** The close button collapses it, the opener restores
   it, `Escape` closes it, and the page padding follows the state.
+- **Desktop, resizing.** The default width is wider, and dragging the handle on
+  the panel edge widens or narrows it, clamping to the minimum and maximum while
+  the page padding follows.
 - **Desktop, outline navigation.** Clicking an outline link scrolls to the
   heading, and the scroll-spy marks the section at the end of the document.
 - **Desktop, print.** Print styles hide the sidebar and remove the page padding.

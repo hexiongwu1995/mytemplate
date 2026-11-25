@@ -78,6 +78,7 @@ export async function pageState(page) {
     const openerWrap = document.querySelector('.mytemplate-toc-opener');
     const close = document.querySelector('.mytemplate-toc-close');
     const grip = document.querySelector('.mytemplate-toc-grip');
+    const resizer = document.querySelector('.mytemplate-toc-resize');
     const style = (element) => (element ? getComputedStyle(element) : null);
     const navRect = nav ? nav.getBoundingClientRect() : null;
     const transform = nav ? style(nav).transform : 'none';
@@ -95,6 +96,8 @@ export async function pageState(page) {
       closeDisplay: style(close)?.display || null,
       gripDisplay: style(grip)?.display || null,
       gripOpacity: grip ? getComputedStyle(grip).opacity : null,
+      resizeDisplay: style(resizer)?.display || null,
+      resizeCursor: style(resizer)?.cursor || null,
       backdropDisplay: style(backdrop)?.display || null,
       backdropOpacity: backdrop ? Number(getComputedStyle(backdrop).opacity) : null,
       backdropPointer: style(backdrop)?.pointerEvents || null,

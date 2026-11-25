@@ -18,6 +18,12 @@
       ), "✕")
     })
     html.elem("ol", attrs: (class: "mytemplate-toc-list", id: "mytemplate-toc-list"))
+    html.elem("div", attrs: (
+      class: "mytemplate-toc-resize", "aria-hidden": "true",
+      title: "Drag to resize navigation",
+    ), {
+      html.elem("span", attrs: (class: "mytemplate-toc-resize-grip", "aria-hidden": "true"))
+    })
   })
   // A block wrapper keeps Typst from wrapping the button in a paragraph, which
   // would put it out of reach of the sibling selectors below.

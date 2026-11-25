@@ -48,6 +48,63 @@
   if (closeButton) closeButton.addEventListener('click', function () { toggle(false); });
   if (backdrop) backdrop.addEventListener('click', function () { toggle(false); });
 
+  // Mouse: the handle on the trailing edge resizes the panel. The width lives
+  // in `--mytemplate-toc-width`, so the panel and the page padding follow the
+  // pointer together; the value is clamped to the configured range.
+  var resizer = nav.querySelector('.mytemplate-toc-resize');
+  var resizing = false;
+  var resizeStartX = 0;
+  var resizeStartWidth = 0;
+  var resizeDirection = 1;
+
+  function widthBounds() {
+    var css = getComputedStyle(root);
+    var rem = parseFloat(css.fontSize) || 16;
+    var min = (parseFloat(css.getPropertyValue('--mytemplate-toc-min-width')) || 14) * rem;
+    var max = (parseFloat(css.getPropertyValue('--mytemplate-toc-max-width')) || 32) * rem;
+    max = Math.min(max, window.innerWidth * 0.86);
+    return { min: min, max: Math.max(min, max) };
+  }
+
+  function startResize(event) {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    resizing = true;
+    resizeStartX = event.clientX;
+    resizeStartWidth = nav.getBoundingClientRect().width;
+    // In a right-to-left document the panel sits on the right and grows leftward.
+    resizeDirection = getComputedStyle(root).direction === 'rtl' ? -1 : 1;
+    root.classList.add('mytemplate-toc-resizing');
+    if (resizer.setPointerCapture) {
+      try { resizer.setPointerCapture(event.pointerId); } catch (error) {}
+    }
+    event.preventDefault();
+  }
+
+  function moveResize(event) {
+    if (!resizing) return;
+    var bounds = widthBounds();
+    var next = resizeStartWidth + (event.clientX - resizeStartX) * resizeDirection;
+    next = Math.max(bounds.min, Math.min(bounds.max, next));
+    root.style.setProperty('--mytemplate-toc-width', Math.round(next * 100) / 100 + 'px');
+    event.preventDefault();
+  }
+
+  function endResize(event) {
+    if (!resizing) return;
+    resizing = false;
+    root.classList.remove('mytemplate-toc-resizing');
+    if (resizer.releasePointerCapture) {
+      try { resizer.releasePointerCapture(event.pointerId); } catch (error) {}
+    }
+  }
+
+  if (resizer) {
+    resizer.addEventListener('pointerdown', startResize);
+    resizer.addEventListener('pointermove', moveResize);
+    resizer.addEventListener('pointerup', endResize);
+    resizer.addEventListener('pointercancel', endResize);
+  }
+
   document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape' && progress > 0.5) toggle(false);
   });
@@ -213,6 +270,7 @@
     if (!coarse.matches || event.touches.length !== 1) return;
     var touch = event.touches[0];
     if (event.target.closest && event.target.closest('.mytemplate-scroll')) return;
+    if (event.target.closest && event.target.closest('.mytemplate-toc-resize')) return;
     if (progress < 0.5 && event.target.closest && event.target.closest('.mytemplate-toc')) return;
     startX = touch.clientX;
     startY = touch.clientY;

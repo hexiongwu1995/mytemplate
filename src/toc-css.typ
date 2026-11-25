@@ -47,13 +47,6 @@
   // only on wide screens with a precise pointer, and only while the panel is open.
   + " .mytemplate-toc-resize { display: none; position: absolute; inset-block: 0; inset-inline-end: 0;"
   + " width: 0.625rem; z-index: 2; cursor: col-resize; touch-action: none; }"
-  + " .mytemplate-toc-resize-grip { position: absolute; inset-block-start: 50%; inset-inline-end: 0.1875rem;"
-  + " width: 0.1875rem; height: 2.5rem; transform: translateY(-50%); border-radius: 999px;"
-  + " background: var(--mytemplate-toc-muted); opacity: 0.35;"
-  + " transition: opacity 0.15s ease, background-color 0.15s ease; }"
-  + " .mytemplate-toc-resize:hover .mytemplate-toc-resize-grip { opacity: 0.75; }"
-  + " .mytemplate-toc-resizing .mytemplate-toc-resize-grip { opacity: 0.9;"
-  + " background: var(--mytemplate-toc-accent); }"
   + " @media (min-width: " + toc-breakpoint + ") and (pointer: fine) {"
   + " .mytemplate-toc-resize { display: block; } }"
   + " .mytemplate-toc[data-state=closed] .mytemplate-toc-resize { display: none; }"

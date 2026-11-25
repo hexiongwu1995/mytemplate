@@ -100,6 +100,7 @@ typst compile --root . --features html docs/page.typ docs/page.html
 - Editor hover docs: `mytemplate`, `mytemplate-extras.grid`, `mytemplate-extras.line`,
   `mytemplate-extras.align`, and `mytemplate-extras.page` note what each parameter does in HTML.
 - [Contributing](CONTRIBUTING.md): tests, generated docs, and releases.
+- [Bun guide](BUN.md): installing Bun and the commands used by the test suite.
 
 ## Origin
 

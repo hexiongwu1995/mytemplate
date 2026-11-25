@@ -7,22 +7,22 @@ and drive Chromium with Playwright.
 ## Requirements
 
 - Typst 0.15 or newer (`typst --version`)
-- Node.js 20 or newer
+- Bun 1.2 or newer (`bun --version`, see [Bun guide](../BUN.md))
 - Chromium for Playwright
 
 ## Run
 
 ```sh
 cd test
-npm install
-npx playwright install chromium   # first run only
-npm test
+bun install
+bunx playwright install chromium   # first run only
+bun test
 ```
 
 If `typst` is not on your `PATH`, point the tests at it:
 
 ```sh
-TYPST=/path/to/typst npm test
+TYPST=/path/to/typst bun test
 ```
 
 The tests compile fixtures into `test/.output/` (ignored) and overwrite the

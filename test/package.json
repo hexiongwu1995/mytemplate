@@ -4,13 +4,13 @@
   "type": "module",
   "description": "Browser tests for the mytemplate HTML sidebar table of contents",
   "scripts": {
-    "test": "node --test --test-concurrency=1 sidebar.test.mjs",
-    "test:headed": "PWDEBUG=1 node --test --test-concurrency=1 sidebar.test.mjs"
+    "test": "bun test",
+    "test:headed": "PWDEBUG=1 bun test"
   },
   "devDependencies": {
     "playwright": "1.49.1"
   },
   "engines": {
-    "node": ">=20"
+    "bun": ">=1.2.0"
   }
 }

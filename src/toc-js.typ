@@ -16,6 +16,12 @@
   var chosen = false;
   var links = [];
   var minimum = 6;
+  // The outline item the reader followed and the scroll position it settled
+  // at. While an item is pinned it stays highlighted, so the highlight matches
+  // the jump even when the page ends before the heading can reach the top.
+  var pinned = null;
+  var pinY = null;
+  var pinTimer = 0;
 
   function apply(value, animate) {
     progress = Math.max(0, Math.min(1, value));
@@ -49,6 +55,44 @@
   wide.addEventListener('change', function () {
     if (!chosen) apply(wide.matches ? 1 : 0, true);
   });
+
+  // Move the highlight to one item and keep it in view.
+  function mark(active) {
+    var changed = false;
+    for (var j = 0; j < links.length; j++) {
+      var isActive = links[j] === active;
+      if (isActive && links[j].link.getAttribute('aria-current') !== 'location') {
+        links[j].link.setAttribute('aria-current', 'location');
+        changed = true;
+      } else if (!isActive && links[j].link.hasAttribute('aria-current')) {
+        links[j].link.removeAttribute('aria-current');
+      }
+    }
+    if (changed && active) {
+      var top = active.link.offsetTop;
+      if (top < list.scrollTop || top > list.scrollTop + list.clientHeight - 32) {
+        list.scrollTop = Math.max(0, top - 32);
+      }
+    }
+  }
+
+  // Keep the followed item highlighted until the reader moves the page. The
+  // position is captured once the jump has stopped, so the smooth scroll
+  // itself does not count as the reader scrolling away.
+  function pin(item) {
+    mark(item);
+    pinned = item;
+    pinY = null;
+    window.clearTimeout(pinTimer);
+    pinTimer = window.setTimeout(function () { pinY = window.scrollY; }, 200);
+  }
+
+  function follow(item) {
+    item.link.addEventListener('click', function () {
+      if (!wide.matches) toggle(false);
+      pin(item);
+    });
+  }
 
   function build() {
     if (!list) return;
@@ -86,22 +130,29 @@
     for (var j = 0; j < links.length; j++) {
       var depth = parseInt(links[j].link.getAttribute('data-level'), 10) - minimum;
       links[j].link.style.setProperty('--mytemplate-toc-depth', String(Math.max(0, depth)));
-      links[j].link.addEventListener('click', function () {
-        if (!wide.matches) toggle(false);
-      });
+      follow(links[j]);
     }
     if (location.hash) {
       var name = location.hash.substring(1);
       try { name = decodeURIComponent(name); } catch (error) {}
       var target = document.getElementById(name);
-      if (target) target.scrollIntoView();
+      if (target) {
+        target.scrollIntoView();
+        for (var k = 0; k < links.length; k++) {
+          if (links[k].heading === target) { pin(links[k]); break; }
+        }
+      }
     }
     spy();
   }
 
   function spy() {
-    if (!links.length) return;
-    var line = window.scrollY + window.innerHeight * 0.3;
+    if (!links.length || pinned) return;
+    // Following an outline link leaves the heading at the top edge of the
+    // viewport, so the spy has to read from that same edge. A line further
+    // down would make a section shorter than the line hand the highlight to
+    // the next heading as soon as its link is clicked.
+    var line = window.scrollY + 1;
     var active = links[0];
     for (var i = 0; i < links.length; i++) {
       var box = links[i].heading.getBoundingClientRect();
@@ -113,31 +164,31 @@
     if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
       active = links[links.length - 1];
     }
-    var changed = false;
-    for (var j = 0; j < links.length; j++) {
-      var isActive = links[j] === active;
-      if (isActive && links[j].link.getAttribute('aria-current') !== 'location') {
-        links[j].link.setAttribute('aria-current', 'location');
-        changed = true;
-      } else if (!isActive && links[j].link.hasAttribute('aria-current')) {
-        links[j].link.removeAttribute('aria-current');
-      }
-    }
-    if (changed && active) {
-      var top = active.link.offsetTop;
-      if (top < list.scrollTop || top > list.scrollTop + list.clientHeight - 32) {
-        list.scrollTop = Math.max(0, top - 32);
-      }
-    }
+    mark(active);
   }
 "
 
 #let toc-js-part-two = "
+  // A followed item stays highlighted until the jump has settled and the
+  // reader then moves the page away from where it landed.
+  function track() {
+    if (!pinned) return;
+    if (pinY === null) {
+      window.clearTimeout(pinTimer);
+      pinTimer = window.setTimeout(function () { pinY = window.scrollY; }, 200);
+      return;
+    }
+    if (Math.abs(window.scrollY - pinY) > 2) {
+      pinned = null;
+      pinY = null;
+    }
+  }
+
   var ticking = false;
   window.addEventListener('scroll', function () {
     if (ticking) return;
     ticking = true;
-    window.requestAnimationFrame(function () { ticking = false; spy(); });
+    window.requestAnimationFrame(function () { ticking = false; track(); spy(); });
   }, { passive: true });
   window.addEventListener('resize', spy);
 

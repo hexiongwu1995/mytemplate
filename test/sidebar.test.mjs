@@ -208,12 +208,21 @@ test('desktop: outline links scroll to their headings and scroll-spy marks the s
     const current = await page.$$eval(linksSelector, (nodes, target) =>
       nodes.find((link) => link.getAttribute('href') === target)?.getAttribute('aria-current'),
     href);
-    // The heading at the top of the viewport can be its subsection.
     const active = await page.$$eval(linksSelector, (nodes) =>
       nodes.filter((link) => link.getAttribute('aria-current') === 'location').map((link) => link.textContent.trim()),
     );
     assert.equal(active.length, 1);
-    assert.ok(current === 'location' || active[0].startsWith('2.'), `active ${active[0]}`);
+    assert.equal(current, 'location', `clicked link highlighted as ${current}`);
+    assert.equal(active[0], '2. Methods', `active ${active[0]}`);
+
+    // Near the end of the page the jump is clamped, but the followed link must
+    // still be the highlighted one rather than a later section.
+    await page.getByRole('link', { name: '3.1. Measurements' }).click();
+    await page.waitForTimeout(700);
+    const clamped = await page.$$eval(linksSelector, (nodes) =>
+      nodes.filter((link) => link.getAttribute('aria-current') === 'location').map((link) => link.textContent.trim()),
+    );
+    assert.deepEqual(clamped, ['3.1. Measurements']);
   } finally {
     await context.close();
   }
